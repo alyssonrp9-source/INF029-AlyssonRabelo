@@ -10,10 +10,10 @@
 //  O aluno deve preencher seus dados abaixo, e implementar as questões do trabalho
 
 //  ----- Dados do Aluno -----
-//  Nome:
-//  email:
-//  Matrícula:
-//  Semestre:
+//  Nome: Alysson Rabelo Pereira
+//  email: alyssonrp9@gmail.com
+//  Matrícula: 20251160003
+//  Semestre: 2
 
 //  Copyright © 2016 Renato Novais. All rights reserved.
 // Última atualização: 07/05/2021 - 19/08/2016 - 17/10/2025
@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include "trabalho1.h" 
 #include <stdlib.h>
+#include <ctype.h>
 
 DataQuebrada quebraData(char data[]);
 
@@ -89,19 +90,52 @@ int teste(int a)
     Não utilizar funções próprias de string (ex: strtok)   
     pode utilizar strlen para pegar o tamanho da string
  */
-int q1(char data[])
-{
-  int datavalida = 1;
 
-  //quebrar a string data em strings sDia, sMes, sAno
+int q1(char data[]){
 
+  DataQuebrada dq = quebraData(data);
+  if (dq.valido == 0){
+    return 0;
+  }
 
-  //printf("%s\n", data);
+  int dia = dq.iDia;
+  int mes = dq.iMes;
+  int ano = dq.iAno;
 
-  if (datavalida)
-      return 1;
-  else
-      return 0;
+  // validação do mês
+
+  if(mes < 1 || mes > 12){
+    return 0;
+  }
+
+  //Determinar dias no mês
+  int diasNoMes;
+  switch(mes){
+    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+      diasNoMes = 31;
+      break;
+    case 4: case 6: case 9: case 11:
+      diasNoMes = 30;
+      break;
+    case 2:
+      //verificar se é ano bissexto
+      if ((ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0)){
+        diasNoMes = 29;
+      }else{
+        diasNoMes = 28;
+      }
+      break;
+    default:
+      return 0; // mês inválido
+  }
+
+  // validação do dia
+  if(dia < 1 || dia > diasNoMes){
+    return 0;
+  }
+
+  return 1; // data válida
+
 }
 
 
@@ -123,28 +157,89 @@ int q1(char data[])
 DiasMesesAnos q2(char datainicial[], char datafinal[])
 {
 
-    //calcule os dados e armazene nas três variáveis a seguir
     DiasMesesAnos dma;
 
-    if (q1(datainicial) == 0){
-      dma.retorno = 2;
-      return dma;
-    }else if (q1(datafinal) == 0){
-      dma.retorno = 3;
-      return dma;
-    }else{
-      //verifique se a data final não é menor que a data inicial
-      
-      //calcule a distancia entre as datas
+    //Valida as datas usando a Q1
 
-
-      //se tudo der certo
-      dma.retorno = 1;
+    if(q1(datainicial) == 0){
+      dma.retorno = 2; // datainicial inválida
       return dma;
-      
+    }
+
+    if(q1(datafinal) == 0){
+      dma.retorno = 3; // datafinal inválida
+      return dma;
     }
     
+    //Converte as strings para estruturas DataQuebrada
+    DataQuebrada dq1 = quebraData(datainicial);
+    DataQuebrada dq2 = quebraData(datafinal);
+
+    //Verifica se data Inicial é maior que data final
+    if(dq1.iAno > dq2.iAno || 
+       (dq1.iAno == dq2.iAno && dq1.iMes > dq2.iMes) || 
+       (dq1.iAno == dq2.iAno && dq1.iMes == dq2.iMes && dq1.iDia > dq2.iDia)){
+      dma.retorno = 4; // datainicial > datafinal
+      return dma;
+    }
+
+    // Cálculo da diferença
+    int dias = dq2.iDia - dq1.iDia;
+    int meses = dq2.iMes - dq1.iMes;
+    int anos = dq2.iAno - dq1.iAno;
+
+    // Ajuste para dias negativos
+    if (dias < 0) {
+        // Pega o último dia do mês anterior
+        int ultimoDiaMesAnterior;
+        if (dq2.iMes == 1) {
+            ultimoDiaMesAnterior = 31; // Dezembro tem 31 dias
+        } else {
+            // Precisa verificar fevereiro e anos bissextos
+            DataQuebrada temp = quebraData("01/01/2000"); // data dummy
+            // Implementação simplificada - na prática precisa calcular corretamente
+            int mesAnterior = dq2.iMes - 1;
+            switch (mesAnterior) {
+                case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+                    ultimoDiaMesAnterior = 31;
+                    break;
+                case 4: case 6: case 9: case 11:
+                    ultimoDiaMesAnterior = 30;
+                    break;
+                case 2:
+                    if ((dq2.iAno % 4 == 0 && dq2.iAno % 100 != 0) || (dq2.iAno % 400 == 0))
+                        ultimoDiaMesAnterior = 29;
+                    else
+                        ultimoDiaMesAnterior = 28;
+                    break;
+                default:
+                    ultimoDiaMesAnterior = 30;
+            }
+        }
+        dias += ultimoDiaMesAnterior;
+        meses--;
+    }
+
+    // Ajuste para meses negativos
+    if (meses < 0) {
+        meses += 12;
+        anos--;
+    }
+
+    dma.qtdDias = dias;
+    dma.qtdMeses = meses;
+    dma.qtdAnos = anos;
+    dma.retorno = 1;
+
+    return dma;
 }
+
+
+
+
+
+
+
 
 /*
  Q3 = encontrar caracter em texto
@@ -156,9 +251,35 @@ DiasMesesAnos q2(char datainicial[], char datafinal[])
  @saida
     Um número n >= 0.
  */
-int q3(char *texto, char c, int isCaseSensitive)
+
+ int q3(char *texto, char c, int isCaseSensitive)
 {
-    int qtdOcorrencias = -1;
+    int qtdOcorrencias = 0;
+    int i = 0;
+
+    // Verifica se o texto é válido
+    if (texto == NULL) {
+        return 0;
+    }
+
+    if (isCaseSensitive == 1) {
+        // Pesquisa Case Sensitive (diferença entre maiúsculas e minúsculas)
+        while (texto[i] != '\0') {
+            if (texto[i] == c) {
+                qtdOcorrencias++;
+            }
+            i++;
+        }
+    } else {
+        // Pesquisa NÃO Case Sensitive (ignora maiúsculas/minúsculas)
+        char c_lower = tolower(c);
+        while (texto[i] != '\0') {
+          if (tolower(texto[i]) == c_lower) {
+            qtdOcorrencias++;
+          }
+          i++;
+        }
+    }
 
     return qtdOcorrencias;
 }
@@ -180,11 +301,58 @@ int q3(char *texto, char c, int isCaseSensitive)
  */
 int q4(char *strTexto, char *strBusca, int posicoes[30])
 {
-    int qtdOcorrencias = -1;
+    int qtdOcorrencias = 0;
+    int i = 0, j = 0, k = 0;
+    int inicio = -1;
+    int tamBusca = 0;
+
+    // Verifica se as strings são válidas
+    if (strTexto == NULL || strBusca == NULL) {
+        return 0;
+    }
+
+    // Calcula o tamanho da string de busca
+    while (strBusca[tamBusca] != '\0') {
+        tamBusca++;
+    }
+
+    if (tamBusca == 0) {
+        return 0;
+    }
+
+    // Percorre o texto
+    while (strTexto[i] != '\0') {
+        // Verifica se a substring coincide
+        j = 0;
+        while (strBusca[j] != '\0' && strTexto[i + j] == strBusca[j]) {
+            j++;
+        }
+
+        // Se encontrou a palavra toda
+        if (j == tamBusca) {
+            inicio = i + 1; // Posição inicial (começa em 1)
+            int fim = inicio + tamBusca - 1; // Posição final
+
+            // Armazena no vetor de posições
+            posicoes[k] = inicio;
+            posicoes[k + 1] = fim;
+            k += 2;
+            qtdOcorrencias++;
+
+            // Pula para o próximo caractere após a palavra encontrada
+            i += j - 1;
+        }
+        i++;
+    }
+
+    // Preenche o restante do vetor com -1, se necessário
+    while (k < 30) {
+        posicoes[k] = -1;
+        k++;
+    }
 
     return qtdOcorrencias;
 }
-
 /*
  Q5 = inverte número
  @objetivo
@@ -197,8 +365,29 @@ int q4(char *strTexto, char *strBusca, int posicoes[30])
 
 int q5(int num)
 {
+    int invertido = 0;
+    int resto = 0;
 
-    return num;
+    // Caso especial para 0
+    if (num == 0) {
+        return 0;
+    }
+
+    // Lida com números negativos? 
+    // Pelo teste, parece que só positivos, mas vamos considerar o sinal.
+    int sinal = 1;
+    if (num < 0) {
+        sinal = -1;
+        num = -num;
+    }
+
+    while (num != 0) {
+        resto = num % 10;
+        invertido = invertido * 10 + resto;
+        num = num / 10;
+    }
+
+    return invertido * sinal;
 }
 
 /*
@@ -235,7 +424,8 @@ int q6(int numerobase, int numerobusca)
 
 
 
-DataQuebrada quebraData(char data[]){
+DataQuebrada quebraData(char data[])
+{
   DataQuebrada dq;
   char sDia[3];
 	char sMes[3];
