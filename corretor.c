@@ -32,15 +32,23 @@ void testQ7();
 
 int main()
 {
+
     //testSomar();
     //testFatorial();
+    printf("Testes da Q1:\n");
     testQ1();
-    /*testQ2();
+    printf("Testes da Q2:\n");
+    testQ2();
+    printf("Testes da Q3:\n");
     testQ3();
+    printf("Testes da Q4:\n");
     testQ4();
+    printf("Testes da Q5:\n");
     testQ5();
-    testQ6();
-    testQ7();*/
+    
+    //testQ6();
+    
+    //testQ7();
 }
 
 void testSomar()

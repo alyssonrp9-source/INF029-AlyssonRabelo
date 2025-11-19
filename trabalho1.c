@@ -251,9 +251,35 @@ DiasMesesAnos q2(char datainicial[], char datafinal[])
  @saida
     Um número n >= 0.
  */
-int q3(char *texto, char c, int isCaseSensitive)
+
+ int q3(char *texto, char c, int isCaseSensitive)
 {
-    int qtdOcorrencias = -1;
+    int qtdOcorrencias = 0;
+    int i = 0;
+
+    // Verifica se o texto é válido
+    if (texto == NULL) {
+        return 0;
+    }
+
+    if (isCaseSensitive == 1) {
+        // Pesquisa Case Sensitive (diferença entre maiúsculas e minúsculas)
+        while (texto[i] != '\0') {
+            if (texto[i] == c) {
+                qtdOcorrencias++;
+            }
+            i++;
+        }
+    } else {
+        // Pesquisa NÃO Case Sensitive (ignora maiúsculas/minúsculas)
+        char c_lower = tolower(c);
+        while (texto[i] != '\0') {
+          if (tolower(texto[i]) == c_lower) {
+            qtdOcorrencias++;
+          }
+          i++;
+        }
+    }
 
     return qtdOcorrencias;
 }
@@ -275,11 +301,58 @@ int q3(char *texto, char c, int isCaseSensitive)
  */
 int q4(char *strTexto, char *strBusca, int posicoes[30])
 {
-    int qtdOcorrencias = -1;
+    int qtdOcorrencias = 0;
+    int i = 0, j = 0, k = 0;
+    int inicio = -1;
+    int tamBusca = 0;
+
+    // Verifica se as strings são válidas
+    if (strTexto == NULL || strBusca == NULL) {
+        return 0;
+    }
+
+    // Calcula o tamanho da string de busca
+    while (strBusca[tamBusca] != '\0') {
+        tamBusca++;
+    }
+
+    if (tamBusca == 0) {
+        return 0;
+    }
+
+    // Percorre o texto
+    while (strTexto[i] != '\0') {
+        // Verifica se a substring coincide
+        j = 0;
+        while (strBusca[j] != '\0' && strTexto[i + j] == strBusca[j]) {
+            j++;
+        }
+
+        // Se encontrou a palavra toda
+        if (j == tamBusca) {
+            inicio = i + 1; // Posição inicial (começa em 1)
+            int fim = inicio + tamBusca - 1; // Posição final
+
+            // Armazena no vetor de posições
+            posicoes[k] = inicio;
+            posicoes[k + 1] = fim;
+            k += 2;
+            qtdOcorrencias++;
+
+            // Pula para o próximo caractere após a palavra encontrada
+            i += j - 1;
+        }
+        i++;
+    }
+
+    // Preenche o restante do vetor com -1, se necessário
+    while (k < 30) {
+        posicoes[k] = -1;
+        k++;
+    }
 
     return qtdOcorrencias;
 }
-
 /*
  Q5 = inverte número
  @objetivo
@@ -292,8 +365,29 @@ int q4(char *strTexto, char *strBusca, int posicoes[30])
 
 int q5(int num)
 {
+    int invertido = 0;
+    int resto = 0;
 
-    return num;
+    // Caso especial para 0
+    if (num == 0) {
+        return 0;
+    }
+
+    // Lida com números negativos? 
+    // Pelo teste, parece que só positivos, mas vamos considerar o sinal.
+    int sinal = 1;
+    if (num < 0) {
+        sinal = -1;
+        num = -num;
+    }
+
+    while (num != 0) {
+        resto = num % 10;
+        invertido = invertido * 10 + resto;
+        num = num / 10;
+    }
+
+    return invertido * sinal;
 }
 
 /*
