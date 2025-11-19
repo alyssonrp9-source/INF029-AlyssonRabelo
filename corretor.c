@@ -16,7 +16,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
 //renomeie o arquivo do include abaixo para trabalho1.h
 #include "trabalho1.h"
 
@@ -45,10 +44,10 @@ int main()
     testQ4();
     printf("Testes da Q5:\n");
     testQ5();
-    
-    //testQ6();
-    
-    //testQ7();
+    printf("Testes da Q6:\n");
+    testQ6();
+    printf("Testes da Q7:\n");
+    testQ7();
 }
 
 void testSomar()

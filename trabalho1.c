@@ -402,7 +402,60 @@ int q5(int num)
 
 int q6(int numerobase, int numerobusca)
 {
-    int qtdOcorrencias;
+    // Caso especial: buscar 0 em qualquer número
+    if (numerobusca == 0) {
+        // Conta quantos 0's tem no numerobase
+        int count = 0;
+        int temp = numerobase;
+        
+        if (temp == 0) return 1; // Se ambos são 0
+        
+        while (temp > 0) {
+            if (temp % 10 == 0) {
+                count++;
+            }
+            temp = temp / 10;
+        }
+        return count;
+    }
+    
+    int qtdOcorrencias = 0;
+    int tempBase = numerobase;
+    int tamBusca = 0;
+    int busca = numerobusca;
+    
+    // Calcula quantos dígitos tem o número de busca
+    while (busca > 0) {
+        tamBusca++;
+        busca = busca / 10;
+    }
+    
+    // Recria o número de busca
+    busca = numerobusca;
+    
+    // Procura ocorrências
+    while (tempBase > 0) {
+        int temp = tempBase;
+        int encontrou = 1;
+        int buscatemp = busca;
+        
+        // Verifica se os próximos 'tamBusca' dígitos coincidem
+        for (int i = 0; i < tamBusca; i++) {
+            if (temp % 10 != buscatemp % 10) {
+                encontrou = 0;
+                break;
+            }
+            temp = temp / 10;
+            buscatemp = buscatemp / 10;
+        }
+        
+        if (encontrou && tamBusca > 0) {
+            qtdOcorrencias++;
+        }
+        
+        tempBase = tempBase / 10;
+    }
+    
     return qtdOcorrencias;
 }
 
@@ -417,15 +470,70 @@ int q6(int numerobase, int numerobusca)
  */
 
  int q7(char matriz[8][10], char palavra[5])
- {
-     int achou;
-     return achou;
- }
-
-
-
-DataQuebrada quebraData(char data[])
 {
+    int achou = 0;
+    int tamPalavra = 0;
+    
+    // Calcula o tamanho da palavra
+    while (palavra[tamPalavra] != '\0' && tamPalavra < 5) {
+        tamPalavra++;
+    }
+    
+    if (tamPalavra == 0) return 0;
+    
+    // Direções: direita, esquerda, baixo, cima, 
+    // diagonais: superior-direita, superior-esquerda, inferior-direita, inferior-esquerda
+    int direcoes[8][2] = {
+        {0, 1},   // direita
+        {0, -1},  // esquerda  
+        {1, 0},   // baixo
+        {-1, 0},  // cima
+        {-1, 1},  // superior-direita
+        {-1, -1}, // superior-esquerda
+        {1, 1},   // inferior-direita
+        {1, -1}   // inferior-esquerda
+    };
+    
+    // Percorre toda a matriz
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 10; j++) {
+            // Para cada direção possível
+            for (int d = 0; d < 8; d++) {
+                int match = 1;
+                
+                // Verifica se a palavra cabe na direção atual
+                for (int k = 0; k < tamPalavra; k++) {
+                    int novaLinha = i + k * direcoes[d][0];
+                    int novaColuna = j + k * direcoes[d][1];
+                    
+                    // Verifica limites da matriz
+                    if (novaLinha < 0 || novaLinha >= 8 || 
+                        novaColuna < 0 || novaColuna >= 10) {
+                        match = 0;
+                        break;
+                    }
+                    
+                    // Verifica se o caractere coincide
+                    if (matriz[novaLinha][novaColuna] != palavra[k]) {
+                        match = 0;
+                        break;
+                    }
+                }
+                
+                if (match) {
+                    achou = 1;
+                    return achou; // Retorna assim que encontrar
+                }
+            }
+        }
+    }
+    
+    return achou;
+}
+
+
+
+DataQuebrada quebraData(char data[]){
   DataQuebrada dq;
   char sDia[3];
 	char sMes[3];
