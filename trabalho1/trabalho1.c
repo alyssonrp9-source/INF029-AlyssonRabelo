@@ -11,9 +11,9 @@
 
 //  ----- Dados do Aluno -----
 //  Nome: Alysson Rabelo Pereira
-//  email: alyssonrp9@gmail.com
+//  email: 20251160003@ifba.edu.br
 //  Matrícula: 20251160003
-//  Semestre: 2
+//  Semestre: 3 semestre
 
 //  Copyright © 2016 Renato Novais. All rights reserved.
 // Última atualização: 07/05/2021 - 19/08/2016 - 17/10/2025
@@ -23,7 +23,8 @@
 #include <stdio.h>
 #include "trabalho1.h" 
 #include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
+#define MAX_POS 30
 
 DataQuebrada quebraData(char data[]);
 
@@ -89,8 +90,7 @@ int teste(int a)
  @restrições
     Não utilizar funções próprias de string (ex: strtok)   
     pode utilizar strlen para pegar o tamanho da string
- */
-
+*/
 int q1(char data[]){
 
   DataQuebrada dq = quebraData(data);
@@ -137,8 +137,6 @@ int q1(char data[]){
   return 1; // data válida
 
 }
-
-
 
 /*
  Q2 = diferença entre duas datas
@@ -234,54 +232,51 @@ DiasMesesAnos q2(char datainicial[], char datafinal[])
     return dma;
 }
 
-
-
-
-
-
-
-
 /*
  Q3 = encontrar caracter em texto
  @objetivo
     Pesquisar quantas vezes um determinado caracter ocorre em um texto
  @entrada
-    uma string texto, um caracter c e um inteiro que informa se é uma pesquisa Case Sensitive ou não. Se isCaseSensitive = 1, a pesquisa deve considerar diferenças entre maiúsculos e minúsculos.
-        Se isCaseSensitive != 1, a pesquisa não deve  considerar diferenças entre maiúsculos e minúsculos.
+    Uma string texto, um caracter c e um inteiro que informa se é uma pesquisa Case Sensitive ou não. 
+    Se isCaseSensitive = 1, a pesquisa deve considerar diferenças entre maiúsculos e minúsculos.
+    Se isCaseSensitive != 1, a pesquisa não deve  considerar diferenças entre maiúsculos e minúsculos.
  @saida
     Um número n >= 0.
  */
-
- int q3(char *texto, char c, int isCaseSensitive)
+int q3(char *texto, char c, int isCaseSensitive)
 {
-    int qtdOcorrencias = 0;
-    int i = 0;
+    int ocorrencia = 0;
+    
+    if(isCaseSensitive == 1){
 
-    // Verifica se o texto é válido
-    if (texto == NULL) {
-        return 0;
-    }
-
-    if (isCaseSensitive == 1) {
-        // Pesquisa Case Sensitive (diferença entre maiúsculas e minúsculas)
-        while (texto[i] != '\0') {
-            if (texto[i] == c) {
-                qtdOcorrencias++;
+        for(int i = 0; texto[i] != '\0'; i++){
+            if(texto[i] == c){
+                ocorrencia++;
             }
-            i++;
         }
-    } else {
-        // Pesquisa NÃO Case Sensitive (ignora maiúsculas/minúsculas)
-        char c_lower = tolower(c);
-        while (texto[i] != '\0') {
-          if (tolower(texto[i]) == c_lower) {
-            qtdOcorrencias++;
-          }
-          i++;
-        }
+
     }
 
-    return qtdOcorrencias;
+    else{
+
+        char aux;
+        //tabela ASCII;
+        if(c >= 'a' && c <= 'z'){
+            aux = c - 32;
+        }
+        else if(c >= 'A' && c <= 'Z'){
+            aux = c + 32;
+        }
+        for(int i = 0; texto[i] != '\0'; i++){
+            if(texto[i] == aux || texto[i] == c){
+                ocorrencia++;
+            }
+        }
+
+
+    }
+
+    return ocorrencia;
 }
 
 /*
@@ -299,59 +294,58 @@ DiasMesesAnos q2(char datainicial[], char datafinal[])
         O retorno da função, n, nesse caso seria 1;
 
  */
-int q4(char *strTexto, char *strBusca, int posicoes[30])
-{
-    int qtdOcorrencias = 0;
-    int i = 0, j = 0, k = 0;
-    int inicio = -1;
-    int tamBusca = 0;
+  // strlen
+int q4(char *strTexto, char *strBusca, int posicoes[30]) {
+    int tamBusca = 0, i = 0, charPos = 1, k = 0;
 
-    // Verifica se as strings são válidas
-    if (strTexto == NULL || strBusca == NULL) {
-        return 0;
-    }
+    // Inicializa todas as posições com -1
+    for (int j = 0; j < 30; j++) posicoes[j] = -1;
 
-    // Calcula o tamanho da string de busca
-    while (strBusca[tamBusca] != '\0') {
-        tamBusca++;
-    }
+    if (!strTexto || !strBusca) return 0;
+    while (strBusca[tamBusca]) tamBusca++;
+    if (tamBusca == 0) return 0;
 
-    if (tamBusca == 0) {
-        return 0;
-    }
+    int tamTexto = strlen(strTexto);
 
-    // Percorre o texto
-    while (strTexto[i] != '\0') {
-        // Verifica se a substring coincide
-        j = 0;
-        while (strBusca[j] != '\0' && strTexto[i + j] == strBusca[j]) {
-            j++;
+    while (i < tamTexto) {
+        // Pula bytes de continuação UTF-8 (10xxxxxx)
+        if ((unsigned char)strTexto[i] >= 0x80 && (unsigned char)strTexto[i] < 0xC0) {
+            i++;
+            continue;
         }
 
-        // Se encontrou a palavra toda
-        if (j == tamBusca) {
-            inicio = i + 1; // Posição inicial (começa em 1)
-            int fim = inicio + tamBusca - 1; // Posição final
-
-            // Armazena no vetor de posições
-            posicoes[k] = inicio;
-            posicoes[k + 1] = fim;
-            k += 2;
-            qtdOcorrencias++;
-
-            // Pula para o próximo caractere após a palavra encontrada
-            i += j - 1;
+        // Tenta casar strBusca a partir do byte i
+        int match = 1;
+        for (int j = 0; j < tamBusca; j++) {
+            if (i + j >= tamTexto || strTexto[i + j] != strBusca[j]) {
+                match = 0;
+                break;
+            }
         }
-        i++;
+
+        if (match) {
+            if (k + 1 < 30) {
+                posicoes[k]     = charPos;
+                posicoes[k + 1] = charPos + tamBusca - 1;
+                k += 2;
+            }
+            i += tamBusca;        // avança bytes da busca (todos ASCII)
+            charPos += tamBusca;  // avança mesmo número de caracteres
+        } else {
+            // Avança um caractere inteiro (1 a 4 bytes)
+            int len = 1;
+            unsigned char c = (unsigned char)strTexto[i];
+            if (c >= 0xC0) {
+                if (c < 0xE0) len = 2;
+                else if (c < 0xF0) len = 3;
+                else len = 4;
+            }
+            i += len;
+            charPos++;
+        }
     }
 
-    // Preenche o restante do vetor com -1, se necessário
-    while (k < 30) {
-        posicoes[k] = -1;
-        k++;
-    }
-
-    return qtdOcorrencias;
+    return k / 2;
 }
 /*
  Q5 = inverte número
@@ -366,28 +360,25 @@ int q4(char *strTexto, char *strBusca, int posicoes[30])
 int q5(int num)
 {
     int invertido = 0;
-    int resto = 0;
 
-    // Caso especial para 0
-    if (num == 0) {
+    //condição para numero 0;
+    if(num == 0){
         return 0;
     }
-
-    // Lida com números negativos? 
-    // Pelo teste, parece que só positivos, mas vamos considerar o sinal.
-    int sinal = 1;
-    if (num < 0) {
-        sinal = -1;
-        num = -num;
+    
+    //condição para numeros negativos;
+    if(num < 0){
+        num = -num; 
+        invertido = -invertido;
     }
 
-    while (num != 0) {
-        resto = num % 10;
-        invertido = invertido * 10 + resto;
-        num = num / 10;
+    while (num != 0){
+        int digito = num % 10; // Pega o último dígito
+        invertido = invertido * 10 + digito; // Adiciona o dígito ao número invertido
+        num = num / 10; // Remove o último dígito do número original
     }
 
-    return invertido * sinal;
+    return invertido;
 }
 
 /*
@@ -402,60 +393,36 @@ int q5(int num)
 
 int q6(int numerobase, int numerobusca)
 {
-    // Caso especial: buscar 0 em qualquer número
-    if (numerobusca == 0) {
-        // Conta quantos 0's tem no numerobase
-        int count = 0;
-        int temp = numerobase;
-        
-        if (temp == 0) return 1; // Se ambos são 0
-        
-        while (temp > 0) {
-            if (temp % 10 == 0) {
-                count++;
+    int qtdOcorrencias = 0 ;
+    
+    char strBase[20];
+    char strBusca[20];
+    
+    sprintf(strBase, "%d", numerobase);
+    sprintf(strBusca, "%d", numerobusca);
+
+    int tamanhoBase = strlen(strBase);
+    int tamanhoBusca = strlen(strBusca);
+    
+    // Loop para verificar as ocorrências da string de busca na string base
+    for(int i = 0; i <= tamanhoBase - tamanhoBusca; i++){
+        // Verifica se, o primeiro caractere da string de busca, corresponde ao caractere atual da string base
+        if(strBase[i] == strBusca[0]){
+            // Se corresponder, verifica os próximos caracteres da string de busca
+            int j;
+            // Loop para comparar os caracteres seguintes da string de busca com a string base
+            for(j = 1; j < tamanhoBusca; j++){
+                // Verifica se os caracteres correspondem, se não corresponder, sai do loop
+                if(strBase[i + j] != strBusca[j]){
+                    break;
+                }
             }
-            temp = temp / 10;
-        }
-        return count;
-    }
-    
-    int qtdOcorrencias = 0;
-    int tempBase = numerobase;
-    int tamBusca = 0;
-    int busca = numerobusca;
-    
-    // Calcula quantos dígitos tem o número de busca
-    while (busca > 0) {
-        tamBusca++;
-        busca = busca / 10;
-    }
-    
-    // Recria o número de busca
-    busca = numerobusca;
-    
-    // Procura ocorrências
-    while (tempBase > 0) {
-        int temp = tempBase;
-        int encontrou = 1;
-        int buscatemp = busca;
-        
-        // Verifica se os próximos 'tamBusca' dígitos coincidem
-        for (int i = 0; i < tamBusca; i++) {
-            if (temp % 10 != buscatemp % 10) {
-                encontrou = 0;
-                break;
+            if(j == tamanhoBusca){
+                qtdOcorrencias++;
             }
-            temp = temp / 10;
-            buscatemp = buscatemp / 10;
         }
-        
-        if (encontrou && tamBusca > 0) {
-            qtdOcorrencias++;
-        }
-        
-        tempBase = tempBase / 10;
     }
-    
+
     return qtdOcorrencias;
 }
 
@@ -467,9 +434,9 @@ int q6(int numerobase, int numerobusca)
     Uma matriz de caracteres e uma string de busca (palavra).
  @saida
     1 se achou 0 se não achou
- */
+*/
 
- int q7(char matriz[8][10], char palavra[5])
+int q7(char matriz[8][10], char palavra[5])
 {
     int achou = 0;
     int tamPalavra = 0;
@@ -532,28 +499,35 @@ int q6(int numerobase, int numerobusca)
 }
 
 
-
 DataQuebrada quebraData(char data[]){
-  DataQuebrada dq;
-  char sDia[3];
+    //Criação da variavel registro
+    DataQuebrada dq;
+    //Strings Dia, Mes e ano
+    char sDia[3];
 	char sMes[3];
 	char sAno[5];
+
 	int i; 
 
+    // Loop para identificar número e excluir a barra('/')
 	for (i = 0; data[i] != '/'; i++){
 		sDia[i] = data[i];	
 	}
+
+    // Validação para testar se tem um ou dois digitos na variavel sDia
 	if(i == 1 || i == 2){ // testa se tem 1 ou dois digitos
 		sDia[i] = '\0';  // coloca o barra zero no final
-	}else {
+	}  
+    else {
 		dq.valido = 0;
-    return dq;
-  }  
-	
+        return dq;
+    }  
 
+    // Nova variavel para pegar o valor 
 	int j = i + 1; //anda 1 cada para pular a barra
 	i = 0;
 
+    // Loop para pegar o mês da data.
 	for (; data[j] != '/'; j++){
 		sMes[i] = data[j];
 		i++;
@@ -561,13 +535,15 @@ DataQuebrada quebraData(char data[]){
 
 	if(i == 1 || i == 2){ // testa se tem 1 ou dois digitos
 		sMes[i] = '\0';  // coloca o barra zero no final
-	}else {
+	}
+    else{
 		dq.valido = 0;
-    return dq;
-  }
+        return dq;
+    }
 	
 
 	j = j + 1; //anda 1 cada para pular a barra
+
 	i = 0;
 	
 	for(; data[j] != '\0'; j++){
@@ -577,16 +553,17 @@ DataQuebrada quebraData(char data[]){
 
 	if(i == 2 || i == 4){ // testa se tem 2 ou 4 digitos
 		sAno[i] = '\0';  // coloca o barra zero no final
-	}else {
+	}
+    else {
 		dq.valido = 0;
-    return dq;
-  }
+        return dq;
+    }
 
-  dq.iDia = atoi(sDia);
-  dq.iMes = atoi(sMes);
-  dq.iAno = atoi(sAno); 
+    dq.iDia = atoi(sDia);
+    dq.iMes = atoi(sMes);
+    dq.iAno = atoi(sAno);
 
 	dq.valido = 1;
     
-  return dq;
+    return dq;
 }
